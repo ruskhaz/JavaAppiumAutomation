@@ -1,9 +1,14 @@
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
 
@@ -24,7 +29,6 @@ public class FirstTest {
         capabilities.setCapability("app","/Users/ruslan.khaziev/IdeaProjects/JavaAppiumAutomation/apks/org.wikipedia.apk");
 
         driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
-
     }
 
     @After
@@ -34,8 +38,46 @@ public class FirstTest {
     }
 
     @Test
-    public void firstTest()
+    public void testSearchFieldPlaceholderTextComparition()
     {
-        System.out.println("First test run");
+        WaitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                "No element with org.wikipedia:id/search_container id found or unable to click",
+                5
+        );
+
+        WebElement search_text_element = WaitForElementPresent(
+                By.id("org.wikipedia:id/search_src_text"),
+                "No element with org.wikipedia:id/search_src_text id found"
+        );
+
+        String element_text = search_text_element.getAttribute("text");
+
+        Assert.assertEquals(
+                "Unexpected search field placeholder",
+                "Search…",
+                element_text
+        );
+    }
+
+    private WebElement WaitForElementPresent(By by, String error_message, long timeoutInSeconds)
+    {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.withMessage(error_message + "\n");
+        return wait.until(
+                ExpectedConditions.presenceOfElementLocated(by)
+        );
+    }
+
+    private WebElement WaitForElementPresent(By by, String error_message)
+    {
+       return WaitForElementPresent(by, error_message, 5);
+    }
+
+    private WebElement WaitForElementAndClick(By by, String error_message, long timeoutInSeconds)
+    {
+        WebElement element = WaitForElementPresent(by, error_message, timeoutInSeconds);
+        element.click();
+        return element;
     }
 }
