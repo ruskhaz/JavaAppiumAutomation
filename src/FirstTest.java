@@ -10,8 +10,13 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.lang.reflect.Array;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.PrimitiveIterator;
+
+import java.util.Arrays;
 
 public class FirstTest {
     private AppiumDriver driver;
@@ -81,6 +86,42 @@ public class FirstTest {
         );
     }
 
+    @Test
+    public void testSearchResultsTitlesCheck()
+    {
+        String textToSearch = "Java";
+
+        WaitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                "No element with org.wikipedia:id/search_container id found or unable to click",
+                5
+        );
+
+        WaitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Can not find or send keys to element with org.wikipedia:id/search_src_text id or sendKeys " + textToSearch,
+                5,
+                textToSearch
+        );
+
+        WaitForElementPresent(
+                By.id("org.wikipedia:id/page_list_item_title"),
+                "No element with org.wikipedia:id/page_list_item_title id found",
+                5
+        );
+
+        List<WebElement> elementsList = driver.findElements(By.id("org.wikipedia:id/page_list_item_title"));
+        int elementsListLength = elementsList.size();
+
+        for (int i = 0; i < elementsListLength; i++)
+        {
+            WebElement elementsListInstance = elementsList.get(i);
+            String elementTitle = elementsListInstance.getText();
+            //System.out.println(elementTitle);
+            Assert.assertTrue("One element title or more does not contains " + textToSearch, elementTitle.toLowerCase().contains(textToSearch.toLowerCase()));
+        }
+    }
+
     private WebElement WaitForElementPresent(By by, String error_message, long timeoutInSeconds)
     {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
@@ -115,7 +156,6 @@ public class FirstTest {
         wait.withMessage(error_message + "\n");
         List elements = driver.findElements(by);
         return elements.size();
-
     }
 
     private boolean WaitForElementNotPresent(By by, String error_message, long timeoutInSeconds){
@@ -125,5 +165,4 @@ public class FirstTest {
                 ExpectedConditions.invisibilityOfElementLocated(by)
         );
     }
-
 }
