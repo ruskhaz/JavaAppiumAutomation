@@ -167,6 +167,31 @@ public class FirstTest {
                 "Can not find 'GOT IT' button",
                 5
         );
+
+        WaitForElementAndClear(
+                By.id("org.wikipedia:id/text_input"),
+                "Cannot find article folder input text field",
+                5
+        );
+
+        WaitForElementAndSendKeys(
+                By.id("org.wikipedia:id/text_input"),
+                "Cannot put text into article folder input text field",
+                5,
+                "Learning programming"
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@text='OK']"),
+                "Cannot press OK button",
+                5
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@content-desc='Navigate up']"),
+                "Cannot find 'Navigate up' X button",
+                5
+        );
     }
 
     private WebElement WaitForElementPresent(By by, String error_message, long timeoutInSeconds)
