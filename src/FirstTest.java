@@ -1,10 +1,13 @@
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -17,6 +20,7 @@ import java.util.List;
 import java.util.PrimitiveIterator;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 public class FirstTest {
     private AppiumDriver driver;
@@ -122,6 +126,49 @@ public class FirstTest {
         }
     }
 
+    @Test
+    public void testDeleteArticleFromReadingList()
+    {
+        String textToSearch = "Java";
+
+        WaitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                "No element with org.wikipedia:id/search_container id found or unable to click",
+                5
+        );
+
+        WaitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Can not find or send keys to element with org.wikipedia:id/search_src_text id or sendKeys " + textToSearch,
+                5,
+                textToSearch
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+                "No element with org.wikipedia:id/page_list_item_container resource-id found or unable to click",
+                15
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@content-desc='More options']"),
+                "Can not find 'More options' button",
+                5
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@text='Add to reading list']"),
+                "Can not find 'Add to reading list' button",
+                5
+        );
+
+        WaitForElementAndClick(
+                By.id("org.wikipedia:id/onboarding_button"),
+                "Can not find 'GOT IT' button",
+                5
+        );
+    }
+
     private WebElement WaitForElementPresent(By by, String error_message, long timeoutInSeconds)
     {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
@@ -158,11 +205,19 @@ public class FirstTest {
         return elements.size();
     }
 
-    private boolean WaitForElementNotPresent(By by, String error_message, long timeoutInSeconds){
+    private boolean WaitForElementNotPresent(By by, String error_message, long timeoutInSeconds)
+    {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         wait.withMessage(error_message + "\n");
         return wait.until(
                 ExpectedConditions.invisibilityOfElementLocated(by)
         );
+    }
+
+    private WebElement WaitForElementAndClear(By by, String error_message, long timeoutInSeconds)
+    {
+        WebElement element = WaitForElementPresent(by, error_message, timeoutInSeconds);
+        element.clear();
+        return element;
     }
 }
