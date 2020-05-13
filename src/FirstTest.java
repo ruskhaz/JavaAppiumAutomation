@@ -1,6 +1,7 @@
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.pagefactory.AppiumFieldDecorator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -10,7 +11,9 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.lang.reflect.Array;
@@ -21,6 +24,7 @@ import java.util.PrimitiveIterator;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
 
 public class FirstTest {
     private AppiumDriver driver;
@@ -127,10 +131,13 @@ public class FirstTest {
     }
 
     @Test
-    public void testDeleteArticleFromReadingList()
-    {
-        String textToSearch = "Java";
+    public void testDeleteArticleFromReadingList() throws InterruptedException {
 
+        String textToSearch = "Java";
+        String listName = "My retarded list";
+        WebElement articleTitleResourceId;
+        String articleTitleText;
+        //Add first article to the list
         WaitForElementAndClick(
                 By.id("org.wikipedia:id/search_container"),
                 "No element with org.wikipedia:id/search_container id found or unable to click",
@@ -149,11 +156,25 @@ public class FirstTest {
                 "No element with org.wikipedia:id/page_list_item_container resource-id found or unable to click",
                 15
         );
+        //Wait for title
+        articleTitleResourceId = WaitForElementPresent(
+                By.id("org.wikipedia:id/view_page_title_text"),
+                "No element with org.wikipedia:id/view_page_title_text id found",
+                5
+        );
 
+        articleTitleText = articleTitleResourceId.getText();
+
+        //Wait for button with 3 dots
         WaitForElementAndClick(
                 By.xpath("//*[@content-desc='More options']"),
                 "Can not find 'More options' button",
                 5
+        );
+        //Wait for button Add to reading list
+        WaitForElementBeingActive(
+                By.id("org.wikipedia:id/title"),
+                "Could not wait for element to be active"
         );
 
         WaitForElementAndClick(
@@ -178,7 +199,7 @@ public class FirstTest {
                 By.id("org.wikipedia:id/text_input"),
                 "Cannot put text into article folder input text field",
                 5,
-                "Learning programming"
+                listName
         );
 
         WaitForElementAndClick(
@@ -192,6 +213,97 @@ public class FirstTest {
                 "Cannot find 'Navigate up' X button",
                 5
         );
+
+        //Adding second article to the list
+        WaitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                "No element with org.wikipedia:id/search_container id found or unable to click",
+                5
+        );
+
+        WaitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Can not find or send keys to element with org.wikipedia:id/search_src_text id or sendKeys " + textToSearch,
+                5,
+                textToSearch
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Island of Indonesia']"),
+                "No element with org.wikipedia:id/page_list_item_container resource-id found or unable to click",
+                15
+        );
+
+        //Wait for title again
+        WaitForElementPresent(
+                By.id("org.wikipedia:id/view_page_title_text"),
+                "No element with org.wikipedia:id/view_page_title_text id found",
+                5
+        );
+        //3 dots button again
+        WaitForElementAndClick(
+                By.xpath("//*[@content-desc='More options']"),
+                "Cannot find 'More options' button",
+                5
+        );
+
+        //And again Add to reading list
+        WaitForElementBeingActive(
+                By.id("org.wikipedia:id/title"),
+                "Could not wait for element to be active"
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@text='Add to reading list']"),
+                "Can not find 'Add to reading list' button",
+                5
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@text='" + listName + "']"),
+                "Can not find '"+ listName + "' button",
+                5
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@content-desc='Navigate up']"),
+                "Cannot find 'Navigate up' X button",
+                5
+        );
+        //Transition to the lists screen
+        WaitForElementAndClick(
+                By.xpath("//*[@content-desc='My lists']"),
+                "Cannot find 'My lists' button",
+                5
+        );
+        //Search for the list
+        WaitForElementAndClick(
+                By.xpath("//*[@text='" + listName + "']"),
+                "Can not find '"+ listName + "' button",
+                5
+        );
+        //2. Delete one of the articles
+        SwipeElementToTheLeft(
+                By.xpath("//*[@text='island of Indonesia']"),
+                "Cannot find element with text 'island of Indonesia' or swipe it"
+        );
+        //3. Check if another article is still here 4. And transition to it
+        WaitForElementAndClick(
+                By.xpath("//*[@text='" + articleTitleText + "']"),
+                "No element with " + articleTitleText + " found or unable to click",
+                5
+        );
+
+        WebElement elementTitle = WaitForElementPresent(
+                By.id("org.wikipedia:id/view_page_title_text"),
+                "Cannot find article title",
+                15
+        );
+        String articleTitle = elementTitle.getAttribute("text");
+        Assert.assertEquals(
+                "Unexpected article title",
+                "Java (programming language)",
+                articleTitle);
     }
 
     private WebElement WaitForElementPresent(By by, String error_message, long timeoutInSeconds)
@@ -210,6 +322,7 @@ public class FirstTest {
 
     private WebElement WaitForElementAndClick(By by, String error_message, long timeoutInSeconds)
     {
+
         WebElement element = WaitForElementPresent(by, error_message, timeoutInSeconds);
         element.click();
         return element;
@@ -244,5 +357,34 @@ public class FirstTest {
         WebElement element = WaitForElementPresent(by, error_message, timeoutInSeconds);
         element.clear();
         return element;
+
     }
+
+    private void SwipeElementToTheLeft(By by, String error_message)
+    {
+        WebElement element = WaitForElementPresent(by, error_message);
+        int left_x = element.getLocation().getX();
+        int right_x = left_x + element.getSize().getWidth();
+        int upper_y = element.getLocation().getY();
+        int lower_y = upper_y + element.getSize().getHeight();
+        int middle_y = (upper_y + lower_y)/2;
+
+        TouchAction action = new TouchAction(driver);
+        action
+                .press(right_x, middle_y)
+                .waitAction(300)
+                .moveTo(left_x, middle_y)
+                .release().perform();
+    }
+
+    private WebElement WaitForElementBeingActive (By by, String error_message)
+    {
+        WebDriverWait wait = new WebDriverWait(driver, 15);
+        wait.withMessage(error_message + "\n");
+        return wait.until(
+                ExpectedConditions.elementToBeClickable(by)
+        );
+    }
+
+
 }
