@@ -12,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -306,6 +307,36 @@ public class FirstTest {
                 articleTitle);
     }
 
+    @Test
+    public void testCheckArticleTitlePresent() {
+        String textToSearch = "Java";
+        String articleToOpen = "Object-oriented programming language";
+
+        WaitForElementAndClick(
+                By.id("org.wikipedia:id/search_container"),
+                "No element with org.wikipedia:id/search_container id found or unable to click",
+                5
+        );
+
+        WaitForElementAndSendKeys(
+                By.id("org.wikipedia:id/search_src_text"),
+                "Can not find or send keys to element with org.wikipedia:id/search_src_text id or sendKeys " + textToSearch,
+                5,
+                textToSearch
+        );
+
+        WaitForElementAndClick(
+                By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='" + articleToOpen + "']"),
+                "No element with org.wikipedia:id/page_list_item_container resource-id found or unable to click",
+                15
+        );
+
+        assertElementPresent(
+            By.id("org.wikipedia:id/view_page_title_text"),
+            "mda"
+        );
+    }
+
     private WebElement WaitForElementPresent(By by, String error_message, long timeoutInSeconds)
     {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
@@ -384,6 +415,18 @@ public class FirstTest {
         return wait.until(
                 ExpectedConditions.elementToBeClickable(by)
         );
+    }
+
+    private void assertElementPresent (By by, String error_message)
+    {
+        boolean isTrue;
+        try {
+            driver.findElement(by);
+            isTrue = true;
+        } catch (RuntimeException t) {
+            isTrue = false;
+        }
+        Assert.assertTrue(error_message, isTrue);
     }
 
 
