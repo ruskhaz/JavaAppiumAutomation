@@ -1,9 +1,7 @@
-import io.appium.java_client.AppiumDriver;
 import lib.CoreTestCase;
 import lib.ui.*;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openqa.selenium.*;
 
 public class FirstTest extends CoreTestCase {
 
@@ -23,6 +21,20 @@ public class FirstTest extends CoreTestCase {
         SearchPageObject.typeSearchLine("Java");
         SearchPageObject.waitForSearchResult("Object-oriented programming language");
     }
+
+    @Test //Ex9*: Рефакторинг темплейта
+    public void testSearchResultsTitlesCheck()
+    {
+        String textToSearch = "Hitler";
+        int expected_results_count = 3;
+        SearchPageObject SearchPageObject = new SearchPageObject(driver);
+        SearchPageObject.initSearchInput();
+        SearchPageObject.typeSearchLine(textToSearch);
+        SearchPageObject.waitForElementByTitleAndDescription(textToSearch, textToSearch);
+        int actual_results_count = SearchPageObject.checkFoundElementsCountWithTitleAndDescriptionSearch(textToSearch,textToSearch);
+        Assert.assertEquals("Articles with successfully compared titles and descriptions are lower " + actual_results_count + " then expected " + expected_results_count, expected_results_count, actual_results_count);
+    }
+
 
     @Test //Ex3: Тест: отмена поиска
     public void testSearchCancellation()
