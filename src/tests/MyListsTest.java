@@ -65,7 +65,6 @@ public class MyListsTest extends CoreTestCase {
             SearchPageObject.clickCancelSearch();
         }
 
-
         NavigationUi NavigationUi = NavigationUIFactory.get(driver);
         NavigationUi.clickMyLists();
         //Open lists
