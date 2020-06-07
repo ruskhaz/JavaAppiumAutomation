@@ -2,18 +2,22 @@ package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.WebElement;
+import lib.Platform;
 
-public class ArticlePageObject extends MainPageObject {
-    private static final String
-        TITLE_ID = "id:org.wikipedia:id/view_page_title_text",
-        OPTIONS_BUTTON = "xpath://*[@content-desc='More options']",
-        OPTIONS_ADD_TO_MY_LIST_BUTTON_ID = "id:org.wikipedia:id/title",
-        OPTIONS_ADD_TO_MY_LIST_BUTTON_TEXT = "xpath://*[@text='Add to reading list']",
-        ADD_TO_MY_LIST_OVERLAY_ID = "id:org.wikipedia:id/onboarding_button",
-        MY_LIST_NAME_INPUT = "id:org.wikipedia:id/text_input",
-        MY_LIST_OK_BUTTON_TEXT = "xpath://*[@text='OK']",
-        CLOSE_ARTICLE_BUTTON = "xpath://*[@content-desc='Navigate up']",
-        FOLDER_NAME_TPL = "xpath://*[@text='{SUBSTRING}']";
+import java.util.concurrent.TimeUnit;
+
+abstract public class ArticlePageObject extends MainPageObject {
+    protected static String
+        TITLE_ID,
+        OPTIONS_BUTTON,
+        OPTIONS_ADD_TO_MY_LIST_BUTTON_ID,
+        OPTIONS_ADD_TO_MY_LIST_BUTTON_TEXT,
+        ADD_TO_MY_LIST_OVERLAY_ID,
+        MY_LIST_NAME_INPUT,
+        MY_LIST_OK_BUTTON_TEXT,
+        CLOSE_ARTICLE_BUTTON,
+        FOLDER_NAME_TPL,
+        FOOTER_ELEMENT;
 
 
     public ArticlePageObject(AppiumDriver driver)
@@ -30,16 +34,18 @@ public class ArticlePageObject extends MainPageObject {
 
     public WebElement waitForTitleElement()
     {
-//        System.out.println(TITLE_ID + " 1");
-//        System.out.println("org.wikipedia:id/view_page_title_text 2");
-
         return this.WaitForElementPresent(TITLE_ID, "No element with " + TITLE_ID + " id found", 15);
     }
 
     public String getArticleTitle()
     {
         WebElement title_element = waitForTitleElement();
-        return title_element.getAttribute("text");
+        if(Platform.getInstance().isAndroid()) {
+            return title_element.getAttribute("text");
+        } else
+        {
+            return title_element.getAttribute("name");
+        }
     }
 
     public void addArticleToMyListFisrtTime(String name_of_folder)
@@ -130,5 +136,10 @@ public class ArticlePageObject extends MainPageObject {
                 TITLE_ID,
                 "No article title found"
         );
+    }
+
+    public void addArticlesToSaved()
+    {
+        this.WaitForElementAndClick(OPTIONS_ADD_TO_MY_LIST_BUTTON_ID, "Cannot find save button", 5);
     }
 }
