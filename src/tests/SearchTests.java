@@ -3,6 +3,7 @@ package tests;
 import lib.CoreTestCase;
 import lib.ui.SearchPageObject;
 import lib.ui.factories.SearchPageObjectFactory;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class SearchTests extends CoreTestCase {
@@ -24,5 +25,18 @@ public class SearchTests extends CoreTestCase {
         SearchPageObject.waitForCancelButtonToAppear();
         SearchPageObject.clickCancelSearch();
         SearchPageObject.waitForSearchResultsToDisapper();
+    }
+
+    @Test //Ex9*: Рефакторинг темплейта
+    public void testSearchResultsTitlesCheck()
+    {
+        String textToSearch = "Hitler";
+        int expected_results_count = 3;
+        SearchPageObject SearchPageObject = SearchPageObjectFactory.get(driver);
+        SearchPageObject.initSearchInput();
+        SearchPageObject.typeSearchLine(textToSearch);
+        SearchPageObject.waitForElementByTitleAndDescription(textToSearch, textToSearch);
+        int actual_results_count = SearchPageObject.checkFoundElementsCountWithTitleAndDescriptionSearch(textToSearch,textToSearch);
+        Assert.assertTrue("Actual resulsts count " + actual_results_count + " is lower then expected " + expected_results_count, actual_results_count > expected_results_count);
     }
 }
